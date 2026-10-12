@@ -14,14 +14,6 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 }
 
-func handlerHealthz(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	status := fmt.Sprintf("Status: %d OK\n", http.StatusOK)
-	w.Write([]byte(status))
-}
-
-
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cfg.fileserverHits.Add(1)
@@ -54,11 +46,11 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(serveIndex()))
-	mux.HandleFunc("GET /api/healthz", handlerHealthz)
+	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("GET /api/metrics", apiCfg.handlerMetrics)
 	mux.HandleFunc("POST /api/reset", apiCfg.handlerReset)
 	s := http.Server{
-		Addr: port,
+		Addr:    port,
 		Handler: mux,
 	}
 	s.ListenAndServe()
