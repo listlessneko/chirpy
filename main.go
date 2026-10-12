@@ -3,16 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"sync/atomic"
 )
 
 const filepathRoot = "."
 const filepathApp = "/app/"
 const port = ":8080"
-
-type apiConfig struct {
-	fileserverHits atomic.Int32
-}
 
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
