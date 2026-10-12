@@ -14,7 +14,7 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 }
 
-func readiness(w http.ResponseWriter, _ *http.Request) {
+func handlerHealthz(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte("OK"))
@@ -38,7 +38,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(serveIndex()))
-	mux.HandleFunc("/healthz", readiness)
+	mux.HandleFunc("/healthz", handlerHealthz)
 	s := http.Server{
 		Addr: port,
 		Handler: mux,
