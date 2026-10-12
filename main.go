@@ -16,7 +16,7 @@ type apiConfig struct {
 
 func handlerHealthz(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
 }
 
@@ -26,6 +26,13 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 		cfg.fileserverHits.Add(1)
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	hits := fmt.Sprintf("Hits: %d\n", cfg.fileserverHits.Load())
+	w.Write([]byte(hits))
 }
 
 func serveIndex() http.Handler {
@@ -39,6 +46,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(serveIndex()))
 	mux.HandleFunc("/healthz", handlerHealthz)
+	mux.HandleFunc("/metrics", apiCfg.handlerMetrics)
 	s := http.Server{
 		Addr: port,
 		Handler: mux,
