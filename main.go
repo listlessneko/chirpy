@@ -17,7 +17,8 @@ type apiConfig struct {
 func handlerHealthz(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	status := fmt.Sprintf("Status: %d OK\n", http.StatusOK)
+	w.Write([]byte(status))
 }
 
 
