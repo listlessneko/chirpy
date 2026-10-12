@@ -5,12 +5,10 @@ import (
 	"net/http"
 )
 
-const filepathRoot = "."
-const filepathApp = "/app/"
 const port = ":8080"
 
 func serveIndex() http.Handler {
-	handler := http.FileServer(http.Dir(filepathRoot))
+	handler := http.FileServer(http.Dir("."))
 	return http.StripPrefix("/app", handler)
 }
 
