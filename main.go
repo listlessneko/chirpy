@@ -22,6 +22,8 @@ func main() {
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("GET /api/metrics", apiCfg.handlerMetrics)
 	mux.HandleFunc("POST /api/reset", apiCfg.handlerReset)
+
+	fmt.Println("Starting Chirpy server...")
 	s := http.Server{
 		Addr:    port,
 		Handler: mux,
