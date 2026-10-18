@@ -50,8 +50,9 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, data)
 		return
 	}
-	validResp := validResp{Valid: true}
-	data, err := json.Marshal(&validResp)
+	text := redactProfanity(c.Body)
+	resp := cleaned_chirp{CleanedBody: text}
+	data, err := json.Marshal(&resp)
 	if err != nil {
 		marshalError(w, err)
 		return

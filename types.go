@@ -10,6 +10,10 @@ type chirp struct {
 	Body string `json:"body"`
 }
 
+type cleaned_chirp struct {
+	CleanedBody string `json:"cleaned_body"`
+}
+
 type errResp struct {
 	Error string `json:"error"`
 }
