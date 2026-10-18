@@ -2,13 +2,26 @@ package main
 
 import (
 	"sync/atomic"
+	"time"
 
 	"codeberg.org/kedarui/chirpy/internal/database"
+	"github.com/google/uuid"
 )
 
 type apiConfig struct {
 	database       *database.Queries
 	fileserverHits atomic.Int32
+}
+
+type Email struct {
+	Email string `json:"email"`
+}
+
+type User struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Email     string    `json:"email"`
 }
 
 type chirp struct {

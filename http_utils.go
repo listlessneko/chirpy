@@ -24,3 +24,9 @@ func respondWithOK(w http.ResponseWriter, data []byte) {
 	w.Write(data)
 }
 
+func respondWithCreated(w http.ResponseWriter, data []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	data = append(data, byte('\n'))
+	w.Write(data)
+}
