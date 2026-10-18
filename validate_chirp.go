@@ -7,25 +7,6 @@ import (
 	"net/http"
 )
 
-func marshalError(w http.ResponseWriter, err error) {
-	log.Printf("Error marshalling json: %s", err)
-	w.WriteHeader(http.StatusInternalServerError)
-}
-
-func respondWithError(w http.ResponseWriter, statusCode int, data []byte) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	data = append(data, byte('\n'))
-	w.Write(data)
-}
-
-func respondWithOK(w http.ResponseWriter, data []byte) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	data = append(data, byte('\n'))
-	w.Write(data)
-}
-
 func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	c := chirp{}
