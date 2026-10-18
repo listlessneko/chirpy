@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -21,9 +22,12 @@ func main() {
 	godotenv.Load()
 
 	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB_URL must be set")
+	}
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		return
+		log.Fatalf("Error opening database: %s\n", err)
 	}
 	dbQueries := database.New(db)
 
