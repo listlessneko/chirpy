@@ -1,8 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
+
+	"codeberg.org/kedarui/chirpy/internal/database"
+	"github.com/joho/godotenv"
 )
 
 const port = ":8080"
@@ -13,7 +18,16 @@ func serveIndex() http.Handler {
 }
 
 func main() {
-	apiCfg := &apiConfig{}
+	godotenv.Load()
+
+	dbURL := os.Getenv("DB_URL")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		return
+	}
+	dbQueries := database.New(db)
+
+	apiCfg := &apiConfig{database: dbQueries}
 
 	mux := http.NewServeMux()
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(serveIndex()))

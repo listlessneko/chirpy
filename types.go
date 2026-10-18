@@ -1,8 +1,13 @@
 package main
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+
+	"codeberg.org/kedarui/chirpy/internal/database"
+)
 
 type apiConfig struct {
+	database       *database.Queries
 	fileserverHits atomic.Int32
 }
 
