@@ -9,6 +9,7 @@ import (
 
 	"codeberg.org/kedarui/chirpy/internal/database"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 const port = ":8080"
