@@ -32,7 +32,7 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	apiCfg := &apiConfig{database: dbQueries}
+	apiCfg := &apiConfig{database: dbQueries, platform: os.Getenv("PLATFORM")}
 
 	mux := http.NewServeMux()
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(serveIndex()))
