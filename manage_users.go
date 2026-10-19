@@ -28,6 +28,7 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	createdUser, err := cfg.database.CreateUser(r.Context(), createUserParams)
 	if err != nil {
 		log.Printf("Error creating user: %s", err)
+		respondWithError(w, http.StatusInternalServerError, nil)
 		return
 	}
 

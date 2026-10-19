@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
 func (cfg *apiConfig) handlerReset(w http.ResponseWriter, r *http.Request) {
 	data := []byte("You are forbidden from using this endpoint")
 	if cfg.platform != "dev" {
+		log.Println("User is forbidden")
 		respondWithError(w, http.StatusForbidden, data)
 	}
 

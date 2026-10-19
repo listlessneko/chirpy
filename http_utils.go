@@ -13,7 +13,9 @@ func marshalError(w http.ResponseWriter, err error) {
 func respondWithError(w http.ResponseWriter, statusCode int, data []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	data = append(data, byte('\n'))
+	if !(len(data) > 0) {
+		data = []byte("Something went wrong\n")
+	}
 	w.Write(data)
 }
 
