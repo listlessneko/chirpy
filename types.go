@@ -26,7 +26,8 @@ type User struct {
 }
 
 type chirp struct {
-	Body string `json:"body"`
+	Body   string    `json:"body"`
+	UserID uuid.UUID `json:"user_id"`
 }
 
 type cleaned_chirp struct {

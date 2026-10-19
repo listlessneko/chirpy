@@ -19,10 +19,10 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	createUserParams := database.CreateUserParams{
-		ID: uuid.New(),
+		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		Email: e.Email,
+		Email:     e.Email,
 	}
 
 	createdUser, err := cfg.database.CreateUser(r.Context(), createUserParams)
@@ -33,10 +33,10 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	user := User{
-		ID: createdUser.ID,
+		ID:        createdUser.ID,
 		CreatedAt: createdUser.CreatedAt,
 		UpdatedAt: createdUser.UpdatedAt,
-		Email: createdUser.Email,
+		Email:     createdUser.Email,
 	}
 
 	data, err := json.Marshal(&user)
