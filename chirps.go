@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"codeberg.org/kedarui/chirpy/internal/database"
+	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerPostChirps(w http.ResponseWriter, r *http.Request) {
@@ -60,4 +62,29 @@ func (cfg *apiConfig) handlerPostChirps(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	respondWithCreated(w, data)
+}
+
+func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
+	dbChirps, err := cfg.database.GetAllChirps(r.Context())
+	if err != nil {
+		log.Printf("Error retrieving all chirps: %s\n", err)
+		respondWithError(w, http.StatusInternalServerError, nil)
+	}
+
+	var allChirps []chirp
+
+	for _, c := range dbChirps {
+		chirp := chirp{
+			Body: c.Body,
+			UserID: c.UserID,
+		}
+		allChirps = append(allChirps, chirp)
+	}
+
+	data, err := json.Marshal(&allChirps)
+	if err != nil {
+		marshalError(w, err)
+		return
+	}
+	respondWithOK(w, data)
 }
