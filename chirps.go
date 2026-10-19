@@ -8,7 +8,7 @@ import (
 	"codeberg.org/kedarui/chirpy/internal/database"
 )
 
-func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerPostChirps(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var c chirp
 	err := decoder.Decode(&c)
