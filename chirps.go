@@ -36,6 +36,9 @@ func (cfg *apiConfig) handlerPostChirps(w http.ResponseWriter, r *http.Request) 
 	cleaned_body := redactProfanity(c.Body)
 
 	createChirpParams := database.CreateChirpParams{
+		ID: uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 		Body:   cleaned_body,
 		UserID: c.UserID,
 	}
