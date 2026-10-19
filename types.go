@@ -26,8 +26,11 @@ type User struct {
 }
 
 type chirp struct {
-	Body   string    `json:"body"`
-	UserID uuid.UUID `json:"user_id"`
+	ID        uuid.UUID `json:"id"`
+	Body      string    `json:"body"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	UserID    uuid.UUID `json:"user_id"`
 }
 
 type cleaned_chirp struct {
