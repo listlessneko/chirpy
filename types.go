@@ -14,8 +14,9 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 }
 
-type Email struct {
+type accountCreds struct {
 	Email string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {

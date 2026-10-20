@@ -6,23 +6,30 @@ import (
 	"net/http"
 	"time"
 
+	"codeberg.org/kedarui/chirpy/internal/auth"
 	"codeberg.org/kedarui/chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
-	var e Email
-	err := json.NewDecoder(r.Body).Decode(&e)
+	var ac accountCreds
+	err := json.NewDecoder(r.Body).Decode(&ac)
 	if err != nil {
 		marshalError(w, err)
 		return
 	}
 
+	hashedPassword, err := auth.HashPassword(ac.Password)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, nil)
+	}
+
 	createUserParams := database.CreateUserParams{
-		ID:        uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Email:     e.Email,
+		ID:             uuid.New(),
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+		Email:          ac.Email,
+		HashedPassword: hashedPassword,
 	}
 
 	createdUser, err := cfg.database.CreateUser(r.Context(), createUserParams)
