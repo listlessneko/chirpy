@@ -53,3 +53,41 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 	respondWithCreated(w, data)
 }
+
+func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
+	var ac accountCreds
+	err := json.NewDecoder(r.Body).Decode(&ac)
+	if err != nil {
+		marshalError(w, err)
+		return
+	}
+
+	dbUser, err := cfg.database.GetUserByEmail(r.Context(), ac.Email)
+	if err != nil {
+		data := []byte("Incorrect email or password")
+		respondWithError(w, http.StatusUnauthorized, data)
+		return
+	}
+
+	ok, err := auth.CheckPasswordHash(ac.Password, dbUser.HashedPassword)
+	if !ok || err != nil {
+		data := []byte("Incorrect email or password")
+		respondWithError(w, http.StatusUnauthorized, data)
+		return
+	}
+
+	user := User{
+		ID: dbUser.ID,
+		CreatedAt: dbUser.CreatedAt,
+		UpdatedAt: dbUser.UpdatedAt,
+		Email: dbUser.Email,
+	}
+
+	data, err := json.Marshal(&user)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, nil)
+		return
+	}
+	
+	respondWithOK(w, data)
+}
