@@ -8,15 +8,33 @@ import (
 	"net/http"
 	"time"
 
+	"codeberg.org/kedarui/chirpy/internal/auth"
 	"codeberg.org/kedarui/chirpy/internal/database"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
+
 func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
+	bearerToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		data := []byte("You are not authorized")
+		respondWithError(w, http.StatusUnauthorized, data)
+		return
+	}
+
+	userId, err := auth.ValidateJWT(bearerToken, cfg.tokenSecret)
+	if err != nil {
+		data := []byte("You are not authorized")
+		respondWithError(w, http.StatusUnauthorized, data)
+		return
+	}
+
+
+
 	decoder := json.NewDecoder(r.Body)
 	var c chirp
-	err := decoder.Decode(&c)
+	err = decoder.Decode(&c)
 	if len(c.Body) > 140 {
 		tooLongResp := errResp{Error: "Chirp is too long"}
 		data, err := json.Marshal(&tooLongResp)
@@ -46,7 +64,7 @@ func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Body:      cleaned_body,
-		UserID:    c.UserID,
+		UserID:    userId,
 	}
 
 	createdChirp, err := cfg.database.CreateChirp(r.Context(), createChirpParams)
