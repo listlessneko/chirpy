@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 func HashPassword(password string) (string, error) {
 	var hash string
 	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
@@ -26,15 +25,37 @@ func MakeJWT(userId uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 	t := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.RegisteredClaims{
-			Issuer: "chirpy-access",
-			IssuedAt: jwt.NewNumericDate(time.Now().UTC()),
+			Issuer:    "chirpy-access",
+			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(expiresIn)),
-			Subject: userId.String(),
+			Subject:   userId.String(),
 		},
-		)
+	)
 	s, err := t.SignedString(tokenSecret)
 	if err != nil {
 		return "", err
 	}
 	return s, nil
+}
+
+func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
+	var userId uuid.UUID
+	token, err := jwt.ParseWithClaims(tokenString, jwt.RegisteredClaims{}, func(token *jwt.Token) (any, error) {
+		return []byte(tokenSecret), nil
+	})
+	if err != nil {
+		return userId, err
+	}
+
+	subject, err := token.Claims.GetSubject()
+	if err != nil {
+		return userId, err
+	}
+
+	userId, err = uuid.Parse(subject)
+	if err != nil {
+		return userId, err
+	}
+
+	return userId, nil
 }
