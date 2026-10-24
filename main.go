@@ -32,7 +32,13 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	apiCfg := &apiConfig{database: dbQueries, platform: os.Getenv("PLATFORM")}
+	tokenSecret := os.Getenv("TOKEN_SECRET")
+
+	apiCfg := &apiConfig{
+		database: dbQueries,
+		platform: os.Getenv("PLATFORM"),
+		tokenSecret: tokenSecret,
+	}
 
 	mux := http.NewServeMux()
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(serveIndex()))

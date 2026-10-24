@@ -11,11 +11,12 @@ import (
 type apiConfig struct {
 	database       *database.Queries
 	platform       string
+	tokenSecret    string
 	fileserverHits atomic.Int32
 }
 
 type accountCreds struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
