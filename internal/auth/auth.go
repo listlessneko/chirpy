@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"errors"
+	"net/http"
 	"time"
 
 	"github.com/alexedwards/argon2id"
@@ -58,4 +60,14 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	}
 
 	return userId, nil
+}
+
+func GetBearerToken(headers http.Header) (string, error) {
+	var bearer string
+	bearer = headers.Get("Authorization")
+	if bearer == "" {
+		return bearer, errors.New("No bearer found")
+	}
+	prefix := "Bearer "
+	return bearer[len(prefix):], nil
 }
