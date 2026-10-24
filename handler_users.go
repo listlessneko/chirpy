@@ -76,11 +76,24 @@ func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	expiresIn := 3600 * time.Second
+
+	if ac.ExpiresInSeconds != 0 && ac.ExpiresInSeconds < int(expiresIn) {
+		expiresIn = time.Duration(ac.ExpiresInSeconds)
+	}
+
+	tokenString, err := auth.MakeJWT(dbUser.ID, cfg.tokenSecret, expiresIn)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, nil)
+		return
+	}
+
 	user := User{
 		ID: dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
 		Email: dbUser.Email,
+		Token: tokenString,
 	}
 
 	data, err := json.Marshal(&user)
