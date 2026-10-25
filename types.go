@@ -16,9 +16,8 @@ type apiConfig struct {
 }
 
 type accountCreds struct {
-	Email            string `json:"email"`
-	Password         string `json:"password"`
-	ExpiresInSeconds int    `json:"expires_in_seconds"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {
@@ -30,7 +29,7 @@ type User struct {
 	RefreshToken string    `json:"refresh_token"`
 }
 
-type chirp struct {
+type Chirp struct {
 	ID        uuid.UUID `json:"id"`
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"created_at"`
@@ -38,14 +37,6 @@ type chirp struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-type cleaned_chirp struct {
-	CleanedBody string `json:"cleaned_body"`
-}
-
-type errResp struct {
+type ErrResp struct {
 	Error string `json:"error"`
-}
-
-type validResp struct {
-	Valid bool `json:"valid"`
 }
