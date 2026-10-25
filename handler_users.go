@@ -41,10 +41,11 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	user := User{
-		ID:        createdUser.ID,
-		CreatedAt: createdUser.CreatedAt,
-		UpdatedAt: createdUser.UpdatedAt,
-		Email:     createdUser.Email,
+		ID:          createdUser.ID,
+		CreatedAt:   createdUser.CreatedAt,
+		UpdatedAt:   createdUser.UpdatedAt,
+		Email:       createdUser.Email,
+		IsChirpyRed: false,
 	}
 
 	data, err := json.Marshal(&user)
@@ -55,7 +56,7 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	respondWithCreated(w, data)
 }
 
-func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 	var ac accountCreds
 	err := json.NewDecoder(r.Body).Decode(&ac)
 	if err != nil {
@@ -88,10 +89,10 @@ func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) 
 	refreshTokenExpiresIn := 1440 * time.Hour
 	refreshTokenExpiresAt := time.Now().Add(refreshTokenExpiresIn)
 	createRefreshTokenParams := database.CreateRefreshTokenParams{
-		Token: refreshTokenString,
+		Token:     refreshTokenString,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID: dbUser.ID,
+		UserID:    dbUser.ID,
 		ExpiresAt: refreshTokenExpiresAt,
 		RevokedAt: sql.NullTime{},
 	}
@@ -103,12 +104,13 @@ func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	user := User{
-		ID: dbUser.ID,
-		CreatedAt: dbUser.CreatedAt,
-		UpdatedAt: dbUser.UpdatedAt,
-		Email: dbUser.Email,
-		Token: tokenString,
+		ID:           dbUser.ID,
+		CreatedAt:    dbUser.CreatedAt,
+		UpdatedAt:    dbUser.UpdatedAt,
+		Email:        dbUser.Email,
+		Token:        tokenString,
 		RefreshToken: refreshToken.Token,
+		IsChirpyRed:  dbUser.IsChirpyRed,
 	}
 
 	data, err := json.Marshal(&user)
@@ -116,7 +118,7 @@ func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, http.StatusInternalServerError, nil)
 		return
 	}
-	
+
 	respondWithOK(w, data)
 }
 
@@ -136,15 +138,15 @@ func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) 
 	newHashedPassword, err := auth.HashPassword(ac.Password)
 
 	updateUserPrams := database.UpdateUserParams{
-		ID: userId,
+		ID:        userId,
 		UpdatedAt: time.Now(),
 		Email: sql.NullString{
 			String: ac.Email,
-			Valid: true,
+			Valid:  true,
 		},
 		HashedPassword: sql.NullString{
 			String: newHashedPassword,
-			Valid: true,
+			Valid:  true,
 		},
 	}
 
@@ -155,10 +157,11 @@ func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	updatedUser := User{
-		ID: updatedDBUser.ID,
-		CreatedAt: updatedDBUser.CreatedAt,
-		UpdatedAt: updatedDBUser.UpdatedAt,
-		Email: updatedDBUser.Email,
+		ID:          updatedDBUser.ID,
+		CreatedAt:   updatedDBUser.CreatedAt,
+		UpdatedAt:   updatedDBUser.UpdatedAt,
+		Email:       updatedDBUser.Email,
+		IsChirpyRed: updatedDBUser.IsChirpyRed,
 	}
 
 	data, err := json.Marshal(&updatedUser)
