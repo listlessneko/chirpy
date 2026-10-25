@@ -12,6 +12,7 @@ type apiConfig struct {
 	database       *database.Queries
 	platform       string
 	tokenSecret    string
+	polkaKey       string
 	fileserverHits atomic.Int32
 }
 

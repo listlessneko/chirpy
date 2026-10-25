@@ -38,6 +38,7 @@ func main() {
 		database: dbQueries,
 		platform: os.Getenv("PLATFORM"),
 		tokenSecret: tokenSecret,
+		polkaKey: os.Getenv("POLKA_KEY"),
 	}
 
 	mux := http.NewServeMux()
