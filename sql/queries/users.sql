@@ -33,6 +33,6 @@ RETURNING *;
 
 -- name: UpdateUserChirpyRedStatus :one
 UPDATE users
-SET is_chirpy_red = $2
+SET is_chirpy_red = $3, updated_at = $2
 WHERE id = $1
 RETURNING *;

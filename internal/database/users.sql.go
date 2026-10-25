@@ -140,18 +140,19 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 
 const updateUserChirpyRedStatus = `-- name: UpdateUserChirpyRedStatus :one
 UPDATE users
-SET is_chirpy_red = $2
+SET is_chirpy_red = $3, updated_at = $2
 WHERE id = $1
 RETURNING id, created_at, updated_at, email, hashed_password, is_chirpy_red
 `
 
 type UpdateUserChirpyRedStatusParams struct {
 	ID          uuid.UUID
+	UpdatedAt   time.Time
 	IsChirpyRed sql.NullBool
 }
 
 func (q *Queries) UpdateUserChirpyRedStatus(ctx context.Context, arg UpdateUserChirpyRedStatusParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUserChirpyRedStatus, arg.ID, arg.IsChirpyRed)
+	row := q.db.QueryRowContext(ctx, updateUserChirpyRedStatus, arg.ID, arg.UpdatedAt, arg.IsChirpyRed)
 	var i User
 	err := row.Scan(
 		&i.ID,
