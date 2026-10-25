@@ -20,6 +20,13 @@ type accountCreds struct {
 	Password string `json:"password"`
 }
 
+type polkaRequest struct {
+	Event string `json:"event"`
+	Data  struct {
+		UserID string `json:"user_id"`
+	} `json:"data"`
+}
+
 type User struct {
 	ID           uuid.UUID `json:"id"`
 	CreatedAt    time.Time `json:"created_at"`
