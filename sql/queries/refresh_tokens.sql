@@ -14,3 +14,10 @@ RETURNING *;
 SELECT *
 FROM refresh_tokens
 WHERE token = $1;
+
+-- name: RevokeRefreshToken :one
+UPDATE refresh_tokens
+SET updated_at = $3, revoked_at = $2
+WHERE token = $1
+RETURNING *;
+
