@@ -88,10 +88,24 @@ func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
-	dbChirps, err := cfg.database.GetAllChirps(r.Context())
-	if err != nil {
-		log.Printf("Error retrieving all chirps: %s\n", err)
-		respondWithError(w, http.StatusInternalServerError, nil)
+	authorId := r.URL.Query().Get("author_id")
+
+	var dbChirps []database.Chirp
+
+	if authorId != "" {
+		userId, err := uuid.Parse(authorId)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, nil)
+			return
+		}
+		dbChirps, err = cfg.database.GetChirpsByAuthorId(r.Context(), userId)
+	} else {
+		var err error
+		dbChirps, err = cfg.database.GetAllChirps(r.Context())
+		if err != nil {
+			log.Printf("Error retrieving all chirps: %s\n", err)
+			respondWithError(w, http.StatusInternalServerError, nil)
+		}
 	}
 
 	var allChirps []Chirp
