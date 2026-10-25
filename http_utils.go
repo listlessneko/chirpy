@@ -32,3 +32,10 @@ func respondWithCreated(w http.ResponseWriter, data []byte) {
 	data = append(data, byte('\n'))
 	w.Write(data)
 }
+
+func respondWithNoContent(w http.ResponseWriter, data []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+	data = append(data, byte('\n'))
+	w.Write(data)
+}
