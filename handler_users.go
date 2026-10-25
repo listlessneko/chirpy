@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -76,13 +77,26 @@ func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	expiresIn := 3600 * time.Second
-
-	if ac.ExpiresInSeconds != 0 && ac.ExpiresInSeconds < int(expiresIn) {
-		expiresIn = time.Duration(ac.ExpiresInSeconds)
+	accessTokenExpiresIn := 3600 * time.Second
+	tokenString, err := auth.MakeJWT(dbUser.ID, cfg.tokenSecret, accessTokenExpiresIn)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, nil)
+		return
 	}
 
-	tokenString, err := auth.MakeJWT(dbUser.ID, cfg.tokenSecret, expiresIn)
+	refreshTokenString := auth.MakeRefreshToken()
+	refreshTokenExpiresIn := 1440 * time.Hour
+	refreshTokenExpiresAt := time.Now().Add(refreshTokenExpiresIn)
+	createRefreshTokenParams := database.CreateRefreshTokenParams{
+		Token: refreshTokenString,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID: dbUser.ID,
+		ExpiresAt: refreshTokenExpiresAt,
+		RevokedAt: sql.NullTime{},
+	}
+
+	refreshToken, err := cfg.database.CreateRefreshToken(r.Context(), createRefreshTokenParams)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, nil)
 		return
@@ -94,6 +108,7 @@ func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) 
 		UpdatedAt: dbUser.UpdatedAt,
 		Email: dbUser.Email,
 		Token: tokenString,
+		RefreshToken: refreshToken.Token,
 	}
 
 	data, err := json.Marshal(&user)
