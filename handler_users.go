@@ -119,3 +119,52 @@ func (cfg * apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) 
 	
 	respondWithOK(w, data)
 }
+
+func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) {
+	userId, err := validateToken(w, r.Header, cfg.tokenSecret)
+	if err != nil {
+		return
+	}
+
+	var ac accountCreds
+	err = json.NewDecoder(r.Body).Decode(&ac)
+	if err != nil {
+		marshalError(w, err)
+		return
+	}
+
+	newHashedPassword, err := auth.HashPassword(ac.Password)
+
+	updateUserPrams := database.UpdateUserParams{
+		ID: userId,
+		UpdatedAt: time.Now(),
+		Email: sql.NullString{
+			String: ac.Email,
+			Valid: true,
+		},
+		HashedPassword: sql.NullString{
+			String: newHashedPassword,
+			Valid: true,
+		},
+	}
+
+	updatedDBUser, err := cfg.database.UpdateUser(r.Context(), updateUserPrams)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, nil)
+		return
+	}
+
+	updatedUser := User{
+		ID: updatedDBUser.ID,
+		CreatedAt: updatedDBUser.CreatedAt,
+		UpdatedAt: updatedDBUser.UpdatedAt,
+		Email: updatedDBUser.Email,
+	}
+
+	data, err := json.Marshal(&updatedUser)
+	if err != nil {
+		marshalError(w, err)
+		return
+	}
+	respondWithOK(w, data)
+}
