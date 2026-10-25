@@ -102,20 +102,27 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET 
-  email = COALESCE($2, email),
-  hashed_password = COALESCE($3, hashed_password)
+  email = COALESCE($3, email),
+  hashed_password = COALESCE($4, hashed_password),
+  updated_at = $2
 WHERE id = $1
 RETURNING id, created_at, updated_at, email, hashed_password
 `
 
 type UpdateUserParams struct {
 	ID             uuid.UUID
+	UpdatedAt      time.Time
 	Email          sql.NullString
 	HashedPassword sql.NullString
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser, arg.ID, arg.Email, arg.HashedPassword)
+	row := q.db.QueryRowContext(ctx, updateUser,
+		arg.ID,
+		arg.UpdatedAt,
+		arg.Email,
+		arg.HashedPassword,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,

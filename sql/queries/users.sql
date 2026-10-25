@@ -26,6 +26,7 @@ WHERE id = $1;
 UPDATE users
 SET 
   email = COALESCE(sqlc.narg('email'), email),
-  hashed_password = COALESCE(sqlc.narg('hashed_password'), hashed_password)
+  hashed_password = COALESCE(sqlc.narg('hashed_password'), hashed_password),
+  updated_at = $2
 WHERE id = $1
 RETURNING *;
