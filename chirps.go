@@ -31,10 +31,10 @@ func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	var c chirp
+	var c Chirp
 	err = decoder.Decode(&c)
 	if len(c.Body) > 140 {
-		tooLongResp := errResp{Error: "Chirp is too long"}
+		tooLongResp := ErrResp{Error: "Chirp is too long"}
 		data, err := json.Marshal(&tooLongResp)
 		if err != nil {
 			marshalError(w, err)
@@ -45,7 +45,7 @@ func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		errResp := errResp{Error: "Something went wrong"}
+		errResp := ErrResp{Error: "Something went wrong"}
 		data, err := json.Marshal(&errResp)
 		if err != nil {
 			marshalError(w, err)
@@ -72,7 +72,7 @@ func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newChirp := chirp{
+	newChirp := Chirp{
 		ID:        createdChirp.ID,
 		Body:      createdChirp.Body,
 		CreatedAt: createdChirp.CreatedAt,
@@ -94,10 +94,10 @@ func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request
 		respondWithError(w, http.StatusInternalServerError, nil)
 	}
 
-	var allChirps []chirp
+	var allChirps []Chirp
 
 	for _, c := range dbChirps {
-		chirp := chirp{
+		chirp := Chirp{
 			ID:        c.ID,
 			Body:      c.Body,
 			CreatedAt: c.CreatedAt,
@@ -136,7 +136,7 @@ func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respChirp := chirp{
+	respChirp := Chirp{
 		ID:        dbChirp.ID,
 		Body:      dbChirp.Body,
 		CreatedAt: dbChirp.CreatedAt,
