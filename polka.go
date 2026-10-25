@@ -8,13 +8,21 @@ import (
 	"net/http"
 	"time"
 
+	"codeberg.org/kedarui/chirpy/internal/auth"
 	"codeberg.org/kedarui/chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerPolkaWebhook(w http.ResponseWriter, r *http.Request) {
+	key, err := auth.GetAPIKey(r.Header)
+	if err != nil || key != cfg.polkaKey {
+		data := []byte("You are not authorized")
+		respondWithError(w, http.StatusUnauthorized, data)
+		return
+	}
+
 	var polka polkaRequest
-	err := json.NewDecoder(r.Body).Decode(&polka)
+	err = json.NewDecoder(r.Body).Decode(&polka)
 	if err != nil {
 		marshalError(w, err)
 		return
