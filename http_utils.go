@@ -16,7 +16,7 @@ func marshalError(w http.ResponseWriter, err error) {
 func respondWithError(w http.ResponseWriter, statusCode int, data []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	if !(len(data) > 0) {
+	if len(data) == 0 {
 		data = []byte("Something went wrong\n")
 	}
 	w.Write(data)
@@ -31,6 +31,7 @@ func validateToken(w http.ResponseWriter, headers http.Header, tokenSecret strin
 	if err != nil {
 		data := []byte("You are not authorized")
 		respondWithError(w, http.StatusUnauthorized, data)
+		return userId, err
 	}
 	return userId, nil
 }
