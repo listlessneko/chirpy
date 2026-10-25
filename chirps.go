@@ -30,8 +30,6 @@ func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
-
 	decoder := json.NewDecoder(r.Body)
 	var c chirp
 	err = decoder.Decode(&c)
@@ -152,4 +150,44 @@ func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondWithOK(w, data)
+}
+
+func (cfg *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request) {
+	userId, err := validateToken(w, r.Header, cfg.tokenSecret)
+	if err != nil {
+		return
+	}
+
+	chirpId, err := uuid.Parse(r.PathValue("chirp_id"))
+	if err != nil {
+		log.Printf("Invalid uuid: %v\n", err)
+		data := []byte(err.Error() + "\n")
+		respondWithError(w, http.StatusBadRequest, data)
+		return
+	}
+
+	dbChirp, err := cfg.database.GetChirpById(r.Context(), chirpId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			data := []byte("Chirp not found")
+			respondWithError(w, http.StatusNotFound, data)
+			return
+		}
+		log.Printf("Error retrieving this chirp: %v\n", err)
+		respondWithError(w, http.StatusInternalServerError, nil)
+		return
+	}
+
+	if dbChirp.UserID != userId {
+		data := []byte("You are forbidden")
+		respondWithError(w, http.StatusForbidden, data)
+		return
+	}
+
+	err = cfg.database.DeleteChirpById(r.Context(), chirpId)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, nil)
+		return
+	}
+	respondWithNoContent(w, nil)
 }
