@@ -148,7 +148,7 @@ RETURNING id, created_at, updated_at, email, hashed_password, is_chirpy_red
 type UpdateUserChirpyRedStatusParams struct {
 	ID          uuid.UUID
 	UpdatedAt   time.Time
-	IsChirpyRed sql.NullBool
+	IsChirpyRed bool
 }
 
 func (q *Queries) UpdateUserChirpyRedStatus(ctx context.Context, arg UpdateUserChirpyRedStatusParams) (User, error) {
