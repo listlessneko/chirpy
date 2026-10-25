@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"sort"
 	"time"
 
 	"codeberg.org/kedarui/chirpy/internal/auth"
@@ -89,6 +90,7 @@ func (cfg *apiConfig) handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 
 func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
 	authorId := r.URL.Query().Get("author_id")
+	sortOrder := r.URL.Query().Get("sort")
 
 	var dbChirps []database.Chirp
 
@@ -119,6 +121,16 @@ func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request
 			UserID:    c.UserID,
 		}
 		allChirps = append(allChirps, chirp)
+	}
+
+	if sortOrder == "desc" {
+		sort.Slice(allChirps, func(i, j int) bool {
+			return allChirps[i].CreatedAt.After(allChirps[j].CreatedAt)
+		})
+	} else {
+		sort.Slice(allChirps, func(i, j int) bool {
+			return allChirps[i].CreatedAt.Before(allChirps[j].CreatedAt)
+		})
 	}
 
 	data, err := json.Marshal(&allChirps)
